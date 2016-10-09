@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>MsDyn.Contrib.CloneFieldDefinitions</id>
+        <version>1.0.0</version>
+        <title>Clone Field Definitions Plugin for XrmToolBox</title>
+        <authors>@authors@</authors>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A XrmToolBox Plugin that helps copying field definitions from an entity to another</description>
+        <projectUrl>https://github.com/DigitalFlow/XrmToolBox.CloneFieldDefinitions</projectUrl>
+        <licenseUrl>https://github.com/DigitalFlow/XrmToolBox.CloneFieldDefinitions/blob/master/LICENSE</licenseUrl>
+        <tags>XrmToolBox Plugins Clone Field Definitions</tags>
+        <dependencies>
+            <dependency id="XrmToolBox" version="1.2016.6.29" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\Publish\lib\*.dll" target="lib\net452\Plugins" />
+    </files>
+</package>
