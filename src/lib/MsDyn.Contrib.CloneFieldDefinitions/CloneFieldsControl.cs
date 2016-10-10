@@ -471,8 +471,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 var item = new ListViewItem(attributeMetadata.LogicalName);
 
                 item.SubItems.Add(GetDisplayLabel(attributeMetadata.DisplayName));
-                item.SubItems.Add(GetDisplayLabel(attributeMetadata.Description));
                 item.SubItems.Add(attributeMetadata.AttributeType.ToString());
+                item.SubItems.Add(GetDisplayLabel(attributeMetadata.Description));
 
                 listView1.Items.Add(item);
             }
