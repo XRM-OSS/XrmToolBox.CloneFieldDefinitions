@@ -294,6 +294,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
                         CloneBooleanAttribute(sourceEntityName, targetEntityName, attribute);
                         CloneOptionSetAttribute(sourceEntityName, targetEntityName, attribute);
+                        CloneMultipleLinesOfTextAttribute(sourceEntityName, targetEntityName, attribute);
 
                         OrganizationRequest request;
 
@@ -355,6 +356,18 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 MessageWidth = 340,
                 MessageHeight = 150
             });
+        }
+
+        private void CloneMultipleLinesOfTextAttribute(string sourceEntityName, string targetEntityName, AttributeMetadata attribute)
+        {
+            var memoAttribute = attribute as MemoAttributeMetadata;
+
+            if (memoAttribute == null)
+            {
+                return;
+            }
+
+            memoAttribute.Format = null;
         }
 
         private OrganizationRequest CloneCustomerAttribute(EntityMetadata sourceEntity, EntityMetadata targetEntity, AttributeMetadata attribute)
