@@ -3,7 +3,7 @@ A Plugin for the XrmToolBox that allows to copy field definitions from one entit
 It supports most field types, even lookups.
 
 # Current issues
-There are currently issues in copying multiple lines of text (type Memo) fields, but the issues are soon to be fixed.
+- Copying of Customer Lookups (2016 feature) is not yet possible
 
 # NuGet
 This plugin is available as Nuget Package.
