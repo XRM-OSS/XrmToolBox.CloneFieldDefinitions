@@ -2,8 +2,9 @@
 A Plugin for the XrmToolBox that allows to copy field definitions from one entity to another.
 It supports most field types, even lookups.
 
-# Current issues
+# Known issues
 - Copying of Customer Lookups (2016 feature) is not yet possible
+- Source Fields can only be copied once, afterwards a restart is needed. This includes successful aswell as unsuccessful copy tries. This will be fixed soon, the reason for this behaviour is that the retrieved source data is edited directly, therefore the fields cannot be found on subsequential runs
 
 # NuGet
 This plugin is available as Nuget Package.
