@@ -27,12 +27,14 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private ColumnHeader columnHeader3;
         private ColumnHeader columnHeader4;
         private Button button1;
-        private List<EntityMetadata> _entities; 
+        private List<EntityMetadata> _entities;
+        private readonly List<EntityMetadata> _entitiesDetailed;
+
 
         public CloneFieldDefinitionsControl()
         {
             InitializeComponent();
-
+            _entitiesDetailed = new List<EntityMetadata>();
             ConnectionUpdated += RetrieveAvailableEntities;
         }
 
@@ -58,7 +60,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 {
                     var retrieveEntitiesRequest = new RetrieveAllEntitiesRequest
                     {
-                        EntityFilters = EntityFilters.All,
+                        EntityFilters = EntityFilters.Entity,
                         RetrieveAsIfPublished = false
                     };
 
@@ -230,19 +232,21 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         }
 
         private void OnSelectSourceEntity(object sender, EventArgs e)
-        {          
-            PopulateAttributeList();
+        {
+            comboBox2.SelectedIndex = -1;
+            _entitiesDetailed.Clear();
+            GetEntityMetadataFromServer(comboBox1.SelectedItem.ToString());
         }
 
         private void OnCloneButtonClick(object sender, EventArgs e)
         {
             var checkedItems = listView1.CheckedItems;
 
-            var fieldsToClone = (from object checkedItem in checkedItems select ((ListViewItem) checkedItem).Text)
+            var fieldsToClone = (from object checkedItem in checkedItems select ((ListViewItem)checkedItem).Text)
                 .ToList();
 
-            var sourceEntity = (string) comboBox1.SelectedItem;
-            var targetEntity = (string) comboBox2.SelectedItem;
+            var sourceEntity = (string)comboBox1.SelectedItem;
+            var targetEntity = (string)comboBox2.SelectedItem;
 
             if (string.IsNullOrEmpty(sourceEntity) || string.IsNullOrEmpty(targetEntity))
             {
@@ -261,7 +265,50 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
         private EntityMetadata GetEntityMetadata(string entityName)
         {
-            return _entities.SingleOrDefault(en => en.LogicalName == entityName);
+            return _entitiesDetailed.SingleOrDefault(en => en.LogicalName == entityName);
+        }
+
+        private void GetEntityMetadataFromServer(string entityName)
+        {
+            if (_entitiesDetailed.Any(metadata => string.Equals(metadata.LogicalName, entityName)))
+            {
+                PopulateAttributeList();
+                return;
+            }
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = $"Retrieving {entityName} metadata ...",
+                Work = (w, e) =>
+                {
+                    var retrieveEntityRequest = new RetrieveEntityRequest
+                    {
+                        LogicalName = entityName,
+                        EntityFilters = EntityFilters.All,
+                        RetrieveAsIfPublished = false
+                    };
+
+                    if (Service == null)
+                    {
+                        throw new Exception("No Service set!");
+                    }
+
+                    var response = Service.Execute(retrieveEntityRequest) as RetrieveEntityResponse;
+
+                    if (response == null)
+                    {
+                        throw new Exception("Failed to retrieve entity!");
+                    }
+                    _entitiesDetailed.Add(response.EntityMetadata);
+                },
+                PostWorkCallBack = e =>
+                {
+                    PopulateAttributeList();
+                },
+                AsyncArgument = null,
+                IsCancelable = true,
+                MessageWidth = 340,
+                MessageHeight = 150
+            });
         }
 
         private void CloneFields(List<string> fields, string sourceEntityName, string targetEntityName)
@@ -328,9 +375,9 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                             errors.Add(fieldName, ex);
                         }
 
-                        w.ReportProgress((int) ((i + 1) / (double)fields.Count * 100));
+                        w.ReportProgress((int)((i + 1) / (double)fields.Count * 100));
                     }
-                    
+
                     e.Result = errors;
                 },
                 ProgressChanged = e =>
@@ -340,7 +387,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 },
                 PostWorkCallBack = e =>
                 {
-                    var faults = (Dictionary<string, Exception>) e.Result;
+                    var faults = (Dictionary<string, Exception>)e.Result;
 
                     if (faults.Count == 0)
                     {
@@ -395,7 +442,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
             relationShip.ReferencingEntity = targetEntity.LogicalName;
             relationShip.ReferencingAttribute = string.Empty;
-            
+
             relationShip.ReferencedEntityNavigationPropertyName =
                 relationShip.ReferencedEntityNavigationPropertyName.ReplaceEntityName(sourceEntity.LogicalName, targetEntity.LogicalName);
 
@@ -428,6 +475,16 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 optionSetAttribute.OptionSet.MetadataId = Guid.NewGuid();
                 optionSetAttribute.OptionSet.Name = optionSetAttribute.OptionSet.Name.ReplaceEntityName(sourceEntityName, targetEntityName);
             }
+            else if (optionSetAttribute?.OptionSet?.IsGlobal != null &&
+                optionSetAttribute.OptionSet.IsGlobal.Value)
+            {
+                optionSetAttribute.OptionSet.MetadataId = Guid.NewGuid();
+                optionSetAttribute.OptionSet.IsGlobal = true;
+                optionSetAttribute.OptionSet.Name = optionSetAttribute.OptionSet.Name.Replace(sourceEntityName,
+                    targetEntityName);
+                optionSetAttribute.OptionSet.Options.Clear();
+
+            }
         }
 
         private void CloneBooleanAttribute(string sourceEntityName, string targetEntityName, AttributeMetadata attribute)
@@ -443,15 +500,19 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
         private void OnSelectTargetEntity(object sender, EventArgs e)
         {
-            PopulateAttributeList();
+            if (comboBox1.SelectedIndex < 0)
+                MessageBox.Show("Please Choose Source Entity.");
+            else
+                if (comboBox2.SelectedItem != null)
+                GetEntityMetadataFromServer(comboBox2.SelectedItem.ToString());
         }
 
         private void PopulateAttributeList()
         {
             listView1.Items.Clear();
 
-            var sourceEntity = _entities.SingleOrDefault(en => en.LogicalName == (string)comboBox1.SelectedItem);
-            var targetEntity = _entities.SingleOrDefault(en => en.LogicalName == (string)comboBox2.SelectedItem);
+            var sourceEntity = _entitiesDetailed.SingleOrDefault(en => en.LogicalName == (string)comboBox1.SelectedItem);
+            var targetEntity = _entitiesDetailed.SingleOrDefault(en => en.LogicalName == (string)comboBox2.SelectedItem);
 
             if (sourceEntity == null)
             {
