@@ -14,7 +14,7 @@ This plugin is available as Nuget Package.
 # Contributors
 I very much appreciate Pull Requests to this project, therefore I'd like to mention everyone contributing to this project.
 
-- Remon Kamel (@harryremon)
+- Remon Kamel ([@harryremon](https://github.com/harryremon))
 
 # Build
 [![Build status](https://ci.appveyor.com/api/projects/status/a4keqi1hpwj2b73f/branch/master?svg=true)](https://ci.appveyor.com/project/DigitalFlow/xrmtoolbox-clonefielddefinitions/branch/master)
