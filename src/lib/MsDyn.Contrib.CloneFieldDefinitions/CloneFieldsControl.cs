@@ -270,6 +270,11 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
         private void GetEntityMetadataFromServer(string entityName)
         {
+            if (_entitiesDetailed.Any(metadata => string.Equals(metadata.LogicalName, entityName)))
+            {
+                PopulateAttributeList();
+                return;
+            }
             WorkAsync(new WorkAsyncInfo
             {
                 Message = $"Retrieving {entityName} metadata ...",
@@ -496,8 +501,9 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private void OnSelectTargetEntity(object sender, EventArgs e)
         {
             if (comboBox1.SelectedIndex < 0)
-                MessageBox.Show("Please Choose Target Entity .");
+                MessageBox.Show("Please Choose Source Entity.");
             else
+                if (comboBox2.SelectedItem != null)
                 GetEntityMetadataFromServer(comboBox2.SelectedItem.ToString());
         }
 
