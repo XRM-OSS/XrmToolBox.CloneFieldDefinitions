@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MsDyn.Contrib.CloneFieldDefinitions")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Florian Kroenert (Edited by Remon Kamel)")]
+[assembly: AssemblyCompany("Florian Kroenert")]
 [assembly: AssemblyProduct("MsDyn.Contrib.CloneFieldDefinitions")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
