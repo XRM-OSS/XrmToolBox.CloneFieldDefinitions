@@ -28,6 +28,9 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private ColumnHeader columnHeader4;
         private Button button1;
         private List<EntityMetadata> _entities;
+        private ColumnHeader columnHeader5;
+        private Label label3;
+        private TextBox txtPrefix;
         private readonly List<EntityMetadata> _entitiesDetailed;
 
 
@@ -41,13 +44,13 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private void SetAvailableEntities()
         {
             _entities
-                .Select(e => e.LogicalName)
-                .OrderBy(e => e)
+                .Select(e => new { e.LogicalName, e.MetadataId })
+                .OrderBy(e => e.LogicalName)
                 .ToList()
                 .ForEach(name =>
                 {
-                    comboBox1.Items.Add(name);
-                    comboBox2.Items.Add(name);
+                    comboBox1.Items.Add(name.LogicalName);
+                    comboBox2.Items.Add(name.LogicalName);
                 });
         }
 
@@ -97,26 +100,32 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtPrefix = new System.Windows.Forms.TextBox();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // flowLayoutPanel2
             // 
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel2.Controls.Add(this.label1);
             this.flowLayoutPanel2.Controls.Add(this.comboBox1);
             this.flowLayoutPanel2.Controls.Add(this.label2);
             this.flowLayoutPanel2.Controls.Add(this.comboBox2);
             this.flowLayoutPanel2.Controls.Add(this.button1);
+            this.flowLayoutPanel2.Controls.Add(this.label3);
+            this.flowLayoutPanel2.Controls.Add(this.txtPrefix);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(920, 39);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(1129, 39);
             this.flowLayoutPanel2.TabIndex = 0;
-            this.flowLayoutPanel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             // 
             // label1
             // 
@@ -167,30 +176,47 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.OnCloneButtonClick);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(548, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(58, 13);
+            this.label3.TabIndex = 6;
+            this.label3.Text = "Field Prefix";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
+            // 
+            // txtPrefix
+            // 
+            this.txtPrefix.Location = new System.Drawing.Point(612, 3);
+            this.txtPrefix.Name = "txtPrefix";
+            this.txtPrefix.Size = new System.Drawing.Size(100, 20);
+            this.txtPrefix.TabIndex = 5;
+            // 
             // listView1
             // 
             this.listView1.Alignment = System.Windows.Forms.ListViewAlignment.SnapToGrid;
-            this.listView1.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent | ColumnHeaderAutoResizeStyle.HeaderSize);
-            this.listView1.HeaderStyle = ColumnHeaderStyle.Clickable;
             this.listView1.AllowColumnReorder = true;
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.listView1.CheckBoxes = true;
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
             this.columnHeader3,
             this.columnHeader2,
-            this.columnHeader4});
+            this.columnHeader4,
+            this.columnHeader5});
             this.listView1.FullRowSelect = true;
+            this.listView1.ImeMode = System.Windows.Forms.ImeMode.On;
             this.listView1.Location = new System.Drawing.Point(3, 48);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(920, 443);
+            this.listView1.Size = new System.Drawing.Size(1129, 443);
             this.listView1.Sorting = System.Windows.Forms.SortOrder.Ascending;
             this.listView1.TabIndex = 1;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                    | System.Windows.Forms.AnchorStyles.Left)
-                    | System.Windows.Forms.AnchorStyles.Right)));
             // 
             // columnHeader1
             // 
@@ -202,28 +228,34 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.columnHeader3.Text = "Display Name";
             this.columnHeader3.Width = 150;
             // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Description";
-            this.columnHeader4.Width = -2;
-            // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Type";
             this.columnHeader2.Width = 150;
             // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Description";
+            this.columnHeader4.Width = 466;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Custom";
+            this.columnHeader5.Width = 150;
+            // 
             // CloneFieldDefinitionsControl
             // 
-            this.AutoSize = true;
-            this.Controls.AddRange(new Control[] { this.flowLayoutPanel2, this.listView1 });
-            this.Name = "CloneFieldDefinitionsControl";
-            this.Size = new System.Drawing.Size(932, 500);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.Controls.Add(this.flowLayoutPanel2);
+            this.Controls.Add(this.listView1);
+            this.Name = "CloneFieldDefinitionsControl";
+            this.Size = new System.Drawing.Size(1141, 500);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
+
         }
 
         private string GetDisplayLabel(Microsoft.Xrm.Sdk.Label label)
@@ -328,9 +360,16 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                     for (var i = 0; i < fields.Count; i++)
                     {
                         var fieldName = fields[i];
-
+                        AttributeMetadata targetAttribute = null;
                         var attribute = sourceEntity.Attributes.Single(attr => attr.LogicalName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase));
-                        var targetAttribute = targetEntity.Attributes.SingleOrDefault(attr => attr.LogicalName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase));
+                        if (!attribute.IsCustomAttribute.Value)
+                        {
+                            targetAttribute = targetEntity.Attributes.SingleOrDefault(attr => attr.LogicalName.Equals(String.Format("{0}_{1}", txtPrefix.Text.Replace("_", ""), fieldName).ToLower(), StringComparison.InvariantCultureIgnoreCase));
+                        }
+                        else
+                        {
+                            targetAttribute = targetEntity.Attributes.SingleOrDefault(attr => attr.LogicalName.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase));
+                        }
 
                         if (targetAttribute != null)
                         {
@@ -351,6 +390,13 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                             AttributeTypeCode.Lookup,
                             AttributeTypeCode.Owner
                         }.Contains(attribute.AttributeType.Value);
+
+                        if (!attribute.IsCustomAttribute.Value)
+                        {
+                            attribute.LogicalName = String.Format("{0}_{1}", txtPrefix.Text.Replace("_", ""), attribute.LogicalName).ToLower();
+                            attribute.SchemaName = String.Format("{0}_{1}", txtPrefix.Text.Replace("_", ""), attribute.SchemaName).ToLower();
+
+                        }
 
                         if (!isEntityReference)
                         {
@@ -522,7 +568,9 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             var attributes = sourceEntity.Attributes
                 // Get only custom attributes and leave out base fields for currencies
                 .Where(attr =>
-                    attr.IsCustomAttribute.HasValue && attr.IsCustomAttribute.Value && attr.IsValidForCreate.HasValue &&
+                    attr.IsCustomAttribute.HasValue
+                    //&& attr.IsCustomAttribute.Value 
+                    && attr.IsValidForCreate.HasValue &&
                     attr.IsValidForCreate.Value)
                 .Where(attr => targetEntity == null || targetEntity.Attributes.All(a => !a.LogicalName.Equals(attr.LogicalName)))
                 .ToList();
@@ -534,9 +582,15 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 item.SubItems.Add(GetDisplayLabel(attributeMetadata.DisplayName));
                 item.SubItems.Add(attributeMetadata.AttributeType.ToString());
                 item.SubItems.Add(GetDisplayLabel(attributeMetadata.Description));
+                item.SubItems.Add(attributeMetadata.IsCustomAttribute.Value.ToString());
 
                 listView1.Items.Add(item);
             }
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
