@@ -45,7 +45,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         {
             _entities
                 .Select(e => new { e.LogicalName, e.MetadataId })
-                .OrderBy(e => e)
+                .OrderBy(e => e.LogicalName)
                 .ToList()
                 .ForEach(name =>
                 {
