@@ -10,6 +10,7 @@
         <projectUrl>https://github.com/DigitalFlow/XrmToolBox.CloneFieldDefinitions</projectUrl>
         <licenseUrl>https://github.com/DigitalFlow/XrmToolBox.CloneFieldDefinitions/blob/master/LICENSE</licenseUrl>
         <tags>XrmToolBox Plugins Clone Field Definitions</tags>
+        <iconUrl>https://user-images.githubusercontent.com/4287938/34744562-e760f1b8-f58d-11e7-8b38-14d38429d046.jpg</iconUrl>
         <dependencies>
             <dependency id="XrmToolBox" version="1.2018.1.20" />
         </dependencies>
