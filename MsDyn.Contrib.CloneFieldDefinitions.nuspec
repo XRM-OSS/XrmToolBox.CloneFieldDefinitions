@@ -11,7 +11,7 @@
         <licenseUrl>https://github.com/DigitalFlow/XrmToolBox.CloneFieldDefinitions/blob/master/LICENSE</licenseUrl>
         <tags>XrmToolBox Plugins Clone Field Definitions</tags>
         <dependencies>
-            <dependency id="XrmToolBox" version="1.2016.6.29" />
+            <dependency id="XrmToolBox" version="1.2018.1.20" />
         </dependencies>
     </metadata>
     <files>
