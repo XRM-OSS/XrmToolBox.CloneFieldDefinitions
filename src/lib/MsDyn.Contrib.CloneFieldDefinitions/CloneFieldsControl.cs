@@ -31,6 +31,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private ColumnHeader columnHeader5;
         private Label label3;
         private TextBox txtPrefix;
+        private Label prefixOverrideLabel;
+        private CheckBox prefixOverride;
         private readonly List<EntityMetadata> _entitiesDetailed;
 
 
@@ -102,6 +104,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.txtPrefix = new System.Windows.Forms.TextBox();
+            this.prefixOverrideLabel = new System.Windows.Forms.Label();
+            this.prefixOverride = new System.Windows.Forms.CheckBox();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -122,6 +126,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.flowLayoutPanel2.Controls.Add(this.button1);
             this.flowLayoutPanel2.Controls.Add(this.label3);
             this.flowLayoutPanel2.Controls.Add(this.txtPrefix);
+            this.flowLayoutPanel2.Controls.Add(this.prefixOverride);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(1129, 39);
@@ -192,6 +197,18 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.txtPrefix.Name = "txtPrefix";
             this.txtPrefix.Size = new System.Drawing.Size(100, 20);
             this.txtPrefix.TabIndex = 5;
+            // 
+            // prefixOverride Label
+            //
+            this.prefixOverrideLabel.AutoSize = true;
+            this.prefixOverrideLabel.Name = "prefixOverrideLabel";
+            this.prefixOverrideLabel.TabIndex = 7;
+            this.prefixOverrideLabel.Text = "Override Prefix";
+            //
+            // prefixOverride
+            //
+            this.prefixOverride.Name = "prefixOverride";
+            this.prefixOverride.TabIndex = 8;
             // 
             // listView1
             // 
@@ -391,11 +408,17 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                             AttributeTypeCode.Owner
                         }.Contains(attribute.AttributeType.Value);
 
+                        var textPrefix = txtPrefix.Text.Replace("_", "");
                         if (!attribute.IsCustomAttribute.Value)
                         {
-                            attribute.LogicalName = String.Format("{0}_{1}", txtPrefix.Text.Replace("_", ""), attribute.LogicalName).ToLower();
-                            attribute.SchemaName = String.Format("{0}_{1}", txtPrefix.Text.Replace("_", ""), attribute.SchemaName).ToLower();
+                            attribute.LogicalName = String.Format("{0}_{1}", textPrefix, attribute.LogicalName).ToLower();
+                            attribute.SchemaName = String.Format("{0}_{1}", textPrefix, attribute.SchemaName).ToLower();
+                        }
 
+                        if (this.prefixOverride.Checked)
+                        {
+                            attribute.LogicalName = String.Format("{0}_{1}", textPrefix, attribute.LogicalName.Substring(attribute.LogicalName.IndexOf('_') + 1)).ToLower();
+                            attribute.SchemaName = String.Format("{0}_{1}", textPrefix, attribute.SchemaName.Substring(attribute.SchemaName.IndexOf('_') + 1)).ToLower();
                         }
 
                         if (!isEntityReference)
