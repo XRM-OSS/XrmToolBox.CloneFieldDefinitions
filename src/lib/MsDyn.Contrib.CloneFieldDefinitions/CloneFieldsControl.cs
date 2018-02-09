@@ -126,6 +126,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.flowLayoutPanel2.Controls.Add(this.button1);
             this.flowLayoutPanel2.Controls.Add(this.label3);
             this.flowLayoutPanel2.Controls.Add(this.txtPrefix);
+            this.flowLayoutPanel2.Controls.Add(this.prefixOverrideLabel);
             this.flowLayoutPanel2.Controls.Add(this.prefixOverride);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
