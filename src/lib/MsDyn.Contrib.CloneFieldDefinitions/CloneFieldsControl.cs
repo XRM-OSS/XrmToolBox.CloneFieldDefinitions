@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.ServiceModel;
 using System.Text;
@@ -10,11 +11,12 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
 using XrmToolBox.Extensibility;
+using XrmToolBox.Extensibility.Interfaces;
 using Label = System.Windows.Forms.Label;
 
 namespace MsDyn.Contrib.CloneFieldDefinitions
 {
-    public class CloneFieldDefinitionsControl : PluginControlBase
+    public class CloneFieldDefinitionsControl : MultipleConnectionsPluginControlBase, IGitHubPlugin
     {
         private FlowLayoutPanel flowLayoutPanel2;
         private Label label1;
@@ -27,31 +29,50 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private ColumnHeader columnHeader3;
         private ColumnHeader columnHeader4;
         private Button button1;
-        private List<EntityMetadata> _entities;
+        private List<EntityMetadata> _entitiesSource;
+        private List<EntityMetadata> _entitiesTarget;
         private ColumnHeader columnHeader5;
         private Label label3;
         private TextBox txtPrefix;
         private Label prefixOverrideLabel;
         private CheckBox prefixOverride;
-        private readonly List<EntityMetadata> _entitiesDetailed;
+        private Button button2;
+        private readonly List<EntityMetadata> _entitiesDetailedSource;
+        private Button button3;
+        private List<EntityMetadata> _entitiesDetailedTarget;
 
+        public string RepositoryName => "XrmToolBox.CloneFieldDefinitions";
+
+        public string UserName => "DigitalFlow";
 
         public CloneFieldDefinitionsControl()
         {
             InitializeComponent();
-            _entitiesDetailed = new List<EntityMetadata>();
+            _entitiesDetailedSource = new List<EntityMetadata>();
+            _entitiesDetailedTarget = new List<EntityMetadata>();
             ConnectionUpdated += RetrieveAvailableEntities;
         }
 
         private void SetAvailableEntities()
         {
-            _entities
+            comboBox1.Items.Clear();
+            comboBox2.Items.Clear();
+
+            _entitiesSource
                 .Select(e => new { e.LogicalName, e.MetadataId })
                 .OrderBy(e => e.LogicalName)
                 .ToList()
                 .ForEach(name =>
                 {
                     comboBox1.Items.Add(name.LogicalName);
+                });
+
+            _entitiesTarget
+                .Select(e => new { e.LogicalName, e.MetadataId })
+                .OrderBy(e => e.LogicalName)
+                .ToList()
+                .ForEach(name =>
+                {
                     comboBox2.Items.Add(name.LogicalName);
                 });
         }
@@ -81,7 +102,42 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                         throw new Exception("Failed to retrieve entities!");
                     }
 
-                    _entities = response.EntityMetadata.ToList();
+                    _entitiesSource = response.EntityMetadata.ToList();
+                },
+                PostWorkCallBack = e =>
+                {
+                    SetAvailableEntities();
+                },
+                AsyncArgument = null,
+                IsCancelable = true,
+                MessageWidth = 340,
+                MessageHeight = 150
+            });
+
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = "Retrieving entity metadata ...",
+                Work = (w, e) =>
+                {
+                    var retrieveEntitiesRequest = new RetrieveAllEntitiesRequest
+                    {
+                        EntityFilters = EntityFilters.Entity,
+                        RetrieveAsIfPublished = false
+                    };
+
+                    if (Service == null)
+                    {
+                        throw new Exception("No Service set!");
+                    }
+
+                    var response = GetTargetService().Execute(retrieveEntitiesRequest) as RetrieveAllEntitiesResponse;
+
+                    if (response == null)
+                    {
+                        throw new Exception("Failed to retrieve entities!");
+                    }
+
+                    _entitiesTarget = response.EntityMetadata.ToList();
                 },
                 PostWorkCallBack = e =>
                 {
@@ -106,18 +162,20 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.txtPrefix = new System.Windows.Forms.TextBox();
             this.prefixOverrideLabel = new System.Windows.Forms.Label();
             this.prefixOverride = new System.Windows.Forms.CheckBox();
+            this.button2 = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button3 = new System.Windows.Forms.Button();
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // flowLayoutPanel2
             // 
-            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel2.Controls.Add(this.label1);
             this.flowLayoutPanel2.Controls.Add(this.comboBox1);
@@ -128,6 +186,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.flowLayoutPanel2.Controls.Add(this.txtPrefix);
             this.flowLayoutPanel2.Controls.Add(this.prefixOverrideLabel);
             this.flowLayoutPanel2.Controls.Add(this.prefixOverride);
+            this.flowLayoutPanel2.Controls.Add(this.button2);
+            this.flowLayoutPanel2.Controls.Add(this.button3);
             this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(1129, 39);
@@ -176,7 +236,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.button1.Dock = System.Windows.Forms.DockStyle.Right;
             this.button1.Location = new System.Drawing.Point(406, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(136, 21);
+            this.button1.Size = new System.Drawing.Size(136, 24);
             this.button1.TabIndex = 4;
             this.button1.Text = "Clone selected Fields";
             this.button1.UseVisualStyleBackColor = true;
@@ -199,24 +259,38 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.txtPrefix.Size = new System.Drawing.Size(100, 20);
             this.txtPrefix.TabIndex = 5;
             // 
-            // prefixOverride Label
-            //
+            // prefixOverrideLabel
+            // 
             this.prefixOverrideLabel.AutoSize = true;
+            this.prefixOverrideLabel.Location = new System.Drawing.Point(718, 0);
             this.prefixOverrideLabel.Name = "prefixOverrideLabel";
+            this.prefixOverrideLabel.Size = new System.Drawing.Size(76, 13);
             this.prefixOverrideLabel.TabIndex = 7;
             this.prefixOverrideLabel.Text = "Override Prefix";
-            //
+            // 
             // prefixOverride
-            //
+            // 
+            this.prefixOverride.Location = new System.Drawing.Point(800, 3);
             this.prefixOverride.Name = "prefixOverride";
+            this.prefixOverride.Size = new System.Drawing.Size(18, 24);
             this.prefixOverride.TabIndex = 8;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(824, 3);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(191, 23);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Target Org: Source";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // listView1
             // 
             this.listView1.Alignment = System.Windows.Forms.ListViewAlignment.SnapToGrid;
             this.listView1.AllowColumnReorder = true;
-            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listView1.BackColor = System.Drawing.Color.WhiteSmoke;
             this.listView1.CheckBoxes = true;
@@ -261,6 +335,16 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.columnHeader5.Text = "Custom";
             this.columnHeader5.Width = 150;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(1021, 3);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(97, 23);
+            this.button3.TabIndex = 10;
+            this.button3.Text = "Reset Target Org";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // CloneFieldDefinitionsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -284,8 +368,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private void OnSelectSourceEntity(object sender, EventArgs e)
         {
             comboBox2.SelectedIndex = -1;
-            _entitiesDetailed.Clear();
-            GetEntityMetadataFromServer(comboBox1.SelectedItem.ToString());
+            _entitiesDetailedSource.Clear();
+            GetEntityMetadataFromServer(comboBox1.SelectedItem.ToString(), _entitiesDetailedSource, Service);
         }
 
         private void OnCloneButtonClick(object sender, EventArgs e)
@@ -304,7 +388,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 return;
             }
 
-            if (sourceEntity.Equals(targetEntity, StringComparison.InvariantCultureIgnoreCase))
+            if (sourceEntity.Equals(targetEntity, StringComparison.InvariantCultureIgnoreCase) && AdditionalConnectionDetails.Count == 0)
             {
                 MessageBox.Show("Source and target must not be the same!");
                 return;
@@ -313,18 +397,19 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             CloneFields(fieldsToClone, sourceEntity, targetEntity);
         }
 
-        private EntityMetadata GetEntityMetadata(string entityName)
+        private EntityMetadata GetEntityMetadata(string entityName, List<EntityMetadata> metadata)
         {
-            return _entitiesDetailed.SingleOrDefault(en => en.LogicalName == entityName);
+            return metadata.SingleOrDefault(en => en.LogicalName == entityName);
         }
 
-        private void GetEntityMetadataFromServer(string entityName)
+        private void GetEntityMetadataFromServer(string entityName, List<EntityMetadata> meta, IOrganizationService service)
         {
-            if (_entitiesDetailed.Any(metadata => string.Equals(metadata.LogicalName, entityName)))
+            if (meta.Any(metadata => string.Equals(metadata.LogicalName, entityName)))
             {
                 PopulateAttributeList();
                 return;
             }
+
             WorkAsync(new WorkAsyncInfo
             {
                 Message = $"Retrieving {entityName} metadata ...",
@@ -337,18 +422,18 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                         RetrieveAsIfPublished = false
                     };
 
-                    if (Service == null)
+                    if (service == null)
                     {
                         throw new Exception("No Service set!");
                     }
 
-                    var response = Service.Execute(retrieveEntityRequest) as RetrieveEntityResponse;
+                    var response = service.Execute(retrieveEntityRequest) as RetrieveEntityResponse;
 
                     if (response == null)
                     {
                         throw new Exception("Failed to retrieve entity!");
                     }
-                    _entitiesDetailed.Add(response.EntityMetadata);
+                    meta.Add(response.EntityMetadata);
                 },
                 PostWorkCallBack = e =>
                 {
@@ -370,8 +455,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 {
                     w.WorkerReportsProgress = true;
 
-                    var sourceEntity = GetEntityMetadata(sourceEntityName);
-                    var targetEntity = GetEntityMetadata(targetEntityName);
+                    var sourceEntity = GetEntityMetadata(sourceEntityName, _entitiesDetailedSource);
+                    var targetEntity = GetEntityMetadata(targetEntityName, _entitiesDetailedTarget);
 
                     var errors = new Dictionary<string, Exception>();
 
@@ -394,7 +479,11 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                             continue;
                         }
 
-                        attribute.MetadataId = Guid.NewGuid();
+                        // Don't regenerate ID if transfering to different organization
+                        if (AdditionalConnectionDetails == null || AdditionalConnectionDetails.Count == 0)
+                        {
+                            attribute.MetadataId = Guid.NewGuid();
+                        }
 
                         CloneBooleanAttribute(sourceEntityName, targetEntityName, attribute);
                         CloneOptionSetAttribute(sourceEntityName, targetEntityName, attribute);
@@ -438,7 +527,14 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
                         try
                         {
-                            Service.Execute(request);
+                            if (AdditionalConnectionDetails.Count > 0)
+                            {
+                                AdditionalConnectionDetails[0].GetCrmServiceClient().Execute(request);
+                            }
+                            else
+                            {
+                                Service.Execute(request);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -573,16 +669,20 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             if (comboBox1.SelectedIndex < 0)
                 MessageBox.Show("Please Choose Source Entity.");
             else
+            {
                 if (comboBox2.SelectedItem != null)
-                GetEntityMetadataFromServer(comboBox2.SelectedItem.ToString());
+                {
+                    GetEntityMetadataFromServer(comboBox2.SelectedItem.ToString(), _entitiesDetailedTarget, GetTargetService());
+                }
+            }
         }
 
         private void PopulateAttributeList()
         {
             listView1.Items.Clear();
 
-            var sourceEntity = _entitiesDetailed.SingleOrDefault(en => en.LogicalName == (string)comboBox1.SelectedItem);
-            var targetEntity = _entitiesDetailed.SingleOrDefault(en => en.LogicalName == (string)comboBox2.SelectedItem);
+            var sourceEntity = _entitiesDetailedSource.SingleOrDefault(en => en.LogicalName == (string)comboBox1.SelectedItem);
+            var targetEntity = _entitiesDetailedTarget.SingleOrDefault(en => en.LogicalName == (string)comboBox2.SelectedItem);
 
             if (sourceEntity == null)
             {
@@ -612,9 +712,56 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             }
         }
 
+        private IOrganizationService GetTargetService()
+        {
+            if (AdditionalConnectionDetails.Count > 0)
+            {
+                return AdditionalConnectionDetails[0].GetCrmServiceClient();
+            }
+            else
+            {
+                if (Service == null)
+                {
+                    throw new Exception("No Service set!");
+                }
+
+                return Service;
+            }
+        }
+
         private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        protected override void ConnectionDetailsUpdated(NotifyCollectionChangedEventArgs e)
+        {
+            _entitiesDetailedTarget = new List<EntityMetadata>();
+            RetrieveAvailableEntities(null, null);
+            button2.Text = $"Target Org: {(AdditionalConnectionDetails.Count > 0 ? AdditionalConnectionDetails[0].Organization : "Source")}";
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (AdditionalConnectionDetails != null && AdditionalConnectionDetails.Count > 0)
+            {
+                MessageBox.Show("Only one additional connection is allowed");
+                return;
+            }
+
+            AddAdditionalOrganization();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if(AdditionalConnectionDetails == null || AdditionalConnectionDetails.Count == 0)
+            {
+                return;
+            }
+
+            RemoveAdditionalOrganization(AdditionalConnectionDetails[0]);
+            button2.Text = "Target Org: Source";
+            RetrieveAvailableEntities(null, null);
         }
     }
 }
