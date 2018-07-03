@@ -23,12 +23,9 @@ let nugetDir = @".\nuget\"
 let packagesDir = @".\packages\"
 
 // version info
-let mutable majorversion    = "1"
-let mutable minorversion    = "1"
-let mutable build           = "0"
-let mutable nugetVersion    = ""
-let mutable asmVersion      = ""
-let mutable asmInfoVersion  = ""
+let majorversion    = 1
+let minorversion    = 1
+let patch           = 0
 
 let sha                     = Git.Information.getCurrentHash() 
 
@@ -48,12 +45,14 @@ Target "RestorePackages" (fun _ ->
    RestorePackages2()
 )
 
+let getVersion() = sprintf "%i.%i.%i" majorversion minorversion patch
+
 Target "AssemblyInfo" (fun _ ->
     BulkReplaceAssemblyInfoVersions "src" (fun f -> 
                                               {f with
-                                                  AssemblyVersion = asmVersion
-                                                  AssemblyInformationalVersion = asmInfoVersion
-                                                  AssemblyFileVersion = asmVersion})
+                                                  AssemblyVersion = getVersion()
+                                                  AssemblyInformationalVersion = getVersion()
+                                                  AssemblyFileVersion = getVersion()})
 )
 
 Target "BuildLib" (fun _ ->
@@ -75,7 +74,7 @@ Target "CreateNuget" (fun _ ->
             {p with
                 Authors = authors
                 Project = projectName
-                Version = nugetVersion
+                Version = getVersion()
                 NoPackageAnalysis = true
                 Description = projectDescription
                 ToolPath = @".\tools\Nuget\Nuget.exe"
