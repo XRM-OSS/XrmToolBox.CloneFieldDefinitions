@@ -37,9 +37,9 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private Label prefixOverrideLabel;
         private CheckBox prefixOverride;
         private Button button2;
-        private readonly List<EntityMetadata> _entitiesDetailedSource;
+        private readonly List<EntityMetadata> _entitiesDetailedSource = new List<EntityMetadata>();
         private Button button3;
-        private List<EntityMetadata> _entitiesDetailedTarget;
+        private List<EntityMetadata> _entitiesDetailedTarget = new List<EntityMetadata>();
 
         public string RepositoryName => "XrmToolBox.CloneFieldDefinitions";
 
@@ -661,7 +661,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             var sourceEntity = _entitiesDetailedSource.SingleOrDefault(en => en.LogicalName == (string)comboBox1.SelectedItem);
             var targetEntity = _entitiesDetailedTarget.SingleOrDefault(en => en.LogicalName == (string)comboBox2.SelectedItem);
 
-            if (sourceEntity == null)
+            if (sourceEntity == null || targetEntity == null)
             {
                 return;
             }
