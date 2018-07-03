@@ -24,8 +24,8 @@ let packagesDir = @".\packages\"
 
 // version info
 let mutable majorversion    = "1"
-let mutable minorversion    = "0"
-let mutable build           = buildVersion
+let mutable minorversion    = "1"
+let mutable build           = "0"
 let mutable nugetVersion    = ""
 let mutable asmVersion      = ""
 let mutable asmInfoVersion  = ""
@@ -46,17 +46,6 @@ Target "RestorePackages" (fun _ ->
      ()
 
    RestorePackages2()
-)
-
-Target "BuildVersions" (fun _ ->
-    asmVersion      <- majorversion + "." + minorversion + "." + build
-    asmInfoVersion  <- asmVersion + " - " + sha
-
-    let nugetBuildNumber = if not isLocalBuild then build else "0"
-    
-    nugetVersion    <- majorversion + "." + minorversion + "." + nugetBuildNumber
-
-    SetBuildNumber nugetVersion   // Publish version to TeamCity
 )
 
 Target "AssemblyInfo" (fun _ ->
@@ -105,7 +94,6 @@ Target "PublishNuget" (fun _ ->
 // Dependencies
 "Clean"
   ==> "RestorePackages"
-  ==> "BuildVersions"
   =?> ("AssemblyInfo", not isLocalBuild )
   ==> "BuildLib"
   ==> "Publish"
