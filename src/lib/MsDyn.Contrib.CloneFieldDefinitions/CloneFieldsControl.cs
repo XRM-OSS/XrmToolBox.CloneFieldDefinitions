@@ -29,8 +29,8 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private ColumnHeader columnHeader3;
         private ColumnHeader columnHeader4;
         private Button button1;
-        private List<EntityMetadata> _entitiesSource;
-        private List<EntityMetadata> _entitiesTarget;
+        private List<EntityMetadata> _entitiesSource = new List<EntityMetadata>();
+        private List<EntityMetadata> _entitiesTarget = new List<EntityMetadata>();
         private ColumnHeader columnHeader5;
         private Label label3;
         private TextBox txtPrefix;
@@ -48,8 +48,6 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         public CloneFieldDefinitionsControl()
         {
             InitializeComponent();
-            _entitiesDetailedSource = new List<EntityMetadata>();
-            _entitiesDetailedTarget = new List<EntityMetadata>();
             ConnectionUpdated += RetrieveAvailableEntities;
         }
 
@@ -77,6 +75,29 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 });
         }
 
+        private List<EntityMetadata> RetrieveEntities(IOrganizationService service)
+        {
+            var retrieveEntitiesRequest = new RetrieveAllEntitiesRequest
+            {
+                EntityFilters = EntityFilters.Entity,
+                RetrieveAsIfPublished = false
+            };
+
+            if (service == null)
+            {
+                throw new Exception("No Service set!");
+            }
+
+            var response = service.Execute(retrieveEntitiesRequest) as RetrieveAllEntitiesResponse;
+
+            if (response == null)
+            {
+                throw new Exception("Failed to retrieve entities!");
+            }
+
+            return response.EntityMetadata.ToList();
+        }
+
         private void RetrieveAvailableEntities(object sender, ConnectionUpdatedEventArgs eventArgs)
         {
             WorkAsync(new WorkAsyncInfo
@@ -84,60 +105,16 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 Message = "Retrieving entity metadata ...",
                 Work = (w, e) =>
                 {
-                    var retrieveEntitiesRequest = new RetrieveAllEntitiesRequest
-                    {
-                        EntityFilters = EntityFilters.Entity,
-                        RetrieveAsIfPublished = false
-                    };
+                    _entitiesSource = RetrieveEntities(Service);
 
-                    if (Service == null)
+                    if (AdditionalConnectionDetails.Count > 0)
                     {
-                        throw new Exception("No Service set!");
+                        _entitiesTarget = RetrieveEntities(GetTargetService());
                     }
-
-                    var response = Service.Execute(retrieveEntitiesRequest) as RetrieveAllEntitiesResponse;
-
-                    if (response == null)
+                    else
                     {
-                        throw new Exception("Failed to retrieve entities!");
+                        _entitiesTarget = _entitiesSource;
                     }
-
-                    _entitiesSource = response.EntityMetadata.ToList();
-                },
-                PostWorkCallBack = e =>
-                {
-                    SetAvailableEntities();
-                },
-                AsyncArgument = null,
-                IsCancelable = true,
-                MessageWidth = 340,
-                MessageHeight = 150
-            });
-
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Retrieving entity metadata ...",
-                Work = (w, e) =>
-                {
-                    var retrieveEntitiesRequest = new RetrieveAllEntitiesRequest
-                    {
-                        EntityFilters = EntityFilters.Entity,
-                        RetrieveAsIfPublished = false
-                    };
-
-                    if (Service == null)
-                    {
-                        throw new Exception("No Service set!");
-                    }
-
-                    var response = GetTargetService().Execute(retrieveEntitiesRequest) as RetrieveAllEntitiesResponse;
-
-                    if (response == null)
-                    {
-                        throw new Exception("Failed to retrieve entities!");
-                    }
-
-                    _entitiesTarget = response.EntityMetadata.ToList();
                 },
                 PostWorkCallBack = e =>
                 {
@@ -738,7 +715,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         {
             _entitiesDetailedTarget = new List<EntityMetadata>();
             RetrieveAvailableEntities(null, null);
-            button2.Text = $"Target Org: {(AdditionalConnectionDetails.Count > 0 ? AdditionalConnectionDetails[0].Organization : "Source")}";
+            button2.Text = $"Target Org: {(AdditionalConnectionDetails != null && AdditionalConnectionDetails.Count > 0 ? AdditionalConnectionDetails[0].Organization : "Source")}";
         }
 
         private void button2_Click(object sender, EventArgs e)
