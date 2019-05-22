@@ -13,6 +13,7 @@ using Microsoft.Xrm.Sdk.Metadata;
 using XrmToolBox.Extensibility;
 using XrmToolBox.Extensibility.Interfaces;
 using Label = System.Windows.Forms.Label;
+using System.Drawing;
 
 namespace MsDyn.Contrib.CloneFieldDefinitions
 {
@@ -49,6 +50,35 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         {
             InitializeComponent();
             ConnectionUpdated += RetrieveAvailableEntities;
+        }
+
+        /// <summary>
+        /// Adjust ComboBox dpopdown width dynamically based on entity names
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AdjustWidthComboBox_DropDown(object sender, System.EventArgs e)
+        {
+            ComboBox senderComboBox = (ComboBox)sender;
+            int width = senderComboBox.DropDownWidth;
+            Graphics g = senderComboBox.CreateGraphics();
+            Font font = senderComboBox.Font;
+            int vertScrollBarWidth =
+                (senderComboBox.Items.Count > senderComboBox.MaxDropDownItems)
+                ? SystemInformation.VerticalScrollBarWidth : 0;
+
+            int newWidth;
+            foreach (string s in ((ComboBox)sender).Items)
+            {
+                newWidth = (int)g.MeasureString(s, font).Width
+                    + vertScrollBarWidth;
+                if (width < newWidth)
+                {
+                    width = newWidth;
+                }
+            }
+            senderComboBox.DropDownWidth = width;
+            g.Dispose();
         }
 
         private void SetAvailableEntities()
@@ -188,6 +218,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
             this.comboBox1.TabIndex = 1;
             this.comboBox1.SelectedValueChanged += new System.EventHandler(this.OnSelectSourceEntity);
+            this.comboBox1.DropDown += new System.EventHandler(this.AdjustWidthComboBox_DropDown);
             // 
             // label2
             // 
@@ -207,6 +238,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
             this.comboBox2.Size = new System.Drawing.Size(121, 21);
             this.comboBox2.TabIndex = 3;
             this.comboBox2.SelectedValueChanged += new System.EventHandler(this.OnSelectTargetEntity);
+            this.comboBox2.DropDown += new System.EventHandler(this.AdjustWidthComboBox_DropDown);
             // 
             // button1
             // 
