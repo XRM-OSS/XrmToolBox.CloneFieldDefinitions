@@ -36,4 +36,3 @@ nuget/*
 Publish/*
 test/*
 .fake/*
-.vs/*
