@@ -24,8 +24,8 @@ let packagesDir = @".\packages\"
 
 // version info
 let majorversion    = 1
-let minorversion    = 1
-let patch           = 2
+let minorversion    = 2
+let patch           = 0
 
 let sha                     = Git.Information.getCurrentHash() 
 
