@@ -438,6 +438,10 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
 
                 listView1.Invalidate();
             }
+            else
+            {                
+                listView1.ListViewItemSorter = new ListViewItemComparer(e.Column);                
+            }
         }
 
         private string GetDisplayLabel(Microsoft.Xrm.Sdk.Label label)
