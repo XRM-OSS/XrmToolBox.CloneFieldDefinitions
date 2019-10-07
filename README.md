@@ -11,3 +11,4 @@ I very much appreciate Pull Requests to this project, therefore I'd like to ment
 - Remon Kamel ([@harryremon](https://github.com/harryremon))
 - Brad Symons ([@bradsymons](https://github.com/bradsymons))
 - Piyush Paliwal ([@piyushpaliwal](https://github.com/piyushpaliwal))
+- [@OMGUSED](https://github.com/omgused)
