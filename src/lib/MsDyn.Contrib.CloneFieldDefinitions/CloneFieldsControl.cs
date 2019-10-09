@@ -42,6 +42,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
         private Button button3;
         private ColumnHeader columnHeader6;
         private List<EntityMetadata> _entitiesDetailedTarget = new List<EntityMetadata>();
+        private int sortedColumn = 0;
 
         public string RepositoryName => "XrmToolBox.CloneFieldDefinitions";
 
@@ -439,8 +440,21 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 listView1.Invalidate();
             }
             else
-            {                
-                listView1.ListViewItemSorter = new ListViewItemComparer(e.Column);                
+            {
+                //Check if it's the same column we sorted last
+                if (sortedColumn == e.Column)
+                {
+                    //Alternate Sort order
+                    listView1.Sorting = listView1.Sorting == SortOrder.Descending ? SortOrder.Ascending : SortOrder.Descending;
+                }
+                else
+                {
+                    //Default back to a-z sorting
+                    listView1.Sorting = SortOrder.Ascending;
+                }
+                // Update last used column
+                sortedColumn = e.Column;
+                listView1.ListViewItemSorter = new ListViewItemComparer(e.Column, listView1.Sorting);
             }
         }
 
