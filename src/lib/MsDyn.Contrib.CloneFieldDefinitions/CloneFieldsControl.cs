@@ -564,7 +564,7 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                         }
 
                         // Don't regenerate ID if transfering to different organization
-                        if (AdditionalConnectionDetails == null || AdditionalConnectionDetails.Count == 0)
+                        if (AdditionalConnectionDetails == null || AdditionalConnectionDetails.Count == 0 || !string.Equals(sourceEntityName, targetEntityName, StringComparison.InvariantCultureIgnoreCase))
                         {
                             attribute.MetadataId = Guid.NewGuid();
                         }

@@ -3,6 +3,7 @@ A Plugin for the XrmToolBox that allows to copy field definitions from one entit
 It supports most field types, even lookups.
 
 # Known issues
+- When copying across systems and across entities, you might need to publish the target entity after cloning for the new attributes to be appear in the default solution (it might not be visible anywhere before publishing).
 - Copying of Customer Lookups (2016 feature) is not yet possible
 
 # Contributors
