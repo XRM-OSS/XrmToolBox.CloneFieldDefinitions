@@ -739,16 +739,6 @@ namespace MsDyn.Contrib.CloneFieldDefinitions
                 optionSetAttribute.OptionSet.MetadataId = Guid.NewGuid();
                 optionSetAttribute.OptionSet.Name = optionSetAttribute.OptionSet.Name.ReplaceEntityName(sourceEntityName, targetEntityName);
             }
-            else if (optionSetAttribute?.OptionSet?.IsGlobal != null &&
-                optionSetAttribute.OptionSet.IsGlobal.Value)
-            {
-                optionSetAttribute.OptionSet.MetadataId = Guid.NewGuid();
-                optionSetAttribute.OptionSet.IsGlobal = true;
-                optionSetAttribute.OptionSet.Name = optionSetAttribute.OptionSet.Name.Replace(sourceEntityName,
-                    targetEntityName);
-                optionSetAttribute.OptionSet.Options.Clear();
-
-            }
         }
 
         private void CloneBooleanAttribute(string sourceEntityName, string targetEntityName, AttributeMetadata attribute)
